@@ -3,6 +3,11 @@
 use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Products service provider.
+ *
+ * @author Laurence Roberts <lsjroberts@outlook.com>
+ */
 class ProductsServiceProvider extends ServiceProvider {
 
     /**
@@ -29,10 +34,7 @@ class ProductsServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app['products'] = $this->app->share(function($app)
-        {
-            return new ProductManager;
-        });
+
     }
 
     /**
@@ -42,7 +44,7 @@ class ProductsServiceProvider extends ServiceProvider {
      */
     public function provides()
     {
-        return array('products');
+        return array();
     }
 
 }

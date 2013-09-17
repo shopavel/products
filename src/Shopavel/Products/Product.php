@@ -1,46 +1,66 @@
 <?php namespace Shopavel\Products;
 
-use Eloquent;
+use InvalidArgumentException;
+use Shopavel\Database\Eloquent\Model;
 
-class Product extends Eloquent implements ProductInterface {
+/**
+ * Product model.
+ *
+ * @author Laurence Roberts <lsjroberts@outlook.com>
+ */
+class Product extends Model implements ProductInterface {
 
-    public function price()
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'product';
+
+    /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = array('id');
+
+    /**
+     * Prices relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function prices()
     {
-        $price = $this->price;
-
-        // ... do some logic based on tax ...
-
-        return $price;
+        return $this->hasMany('Shopavel\Products\Price');
     }
 
-    public function url()
+    /**
+     * Get the prices related to the product.
+     *
+     * @return array
+     */
+    public function getPrices()
     {
-
+        return $this->prices()->get();
     }
 
-    public function image()
+    /**
+     * Get a price by type.
+     *
+     * @param  string $type Type of price.
+     * @return Price
+     */
+    public function getPrice($type)
     {
+        foreach ($this->getPrices() as $price)
+        {
+            if ($price->type == $type)
+            {
+                return $price;
+            }
+        }
 
-    }
-
-    public function images()
-    {
-
-    }
-
-    public function categories()
-    {
-
-    }
-
-    public function features()
-    {
-
-    }
-
-    public function variations()
-    {
-
+        throw new InvalidArgumentException(sprintf("No price of type '%s' found.", $type));
     }
 
 }
