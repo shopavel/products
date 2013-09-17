@@ -1,5 +1,5 @@
-Customers package for Shopavel
-==============================
+Products package for Shopavel
+=============================
 
 Installation
 ------------
