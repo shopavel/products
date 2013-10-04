@@ -18,7 +18,7 @@ class CreateProductsTable extends Migration {
      */
     public function up()
     {
-        Schema::create(with(new Product)->getTable(), function(Blueprint $table)
+        Schema::create((new Product)->getTable(), function(Blueprint $table)
         {
             $table->increments('id');
             $table->string('name');
@@ -34,7 +34,7 @@ class CreateProductsTable extends Migration {
      */
     public function down()
     {
-        Schema::drop(with(new Product)->getTable());
+        Schema::drop((new Product)->getTable());
     }
 
 }
