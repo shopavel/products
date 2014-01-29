@@ -57,6 +57,17 @@ You can access a specific price using:
 echo $product->getPrice('retail');
 ```
 
+
+### Transactions
+
+**Create a new product**
+
+```php
+$product = new Product;
+$product->name = 'Foo';
+app('product.create')->create($product);
+```
+
 License
 -------
 

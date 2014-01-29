@@ -1,7 +1,8 @@
 <?php namespace Shopavel\Products;
 
 use Illuminate\Container\Container;
-use Illuminate\Support\ServiceProvider;
+use Shopavel\Support\ServiceProvider;
+use Shopavel\Transactions\Validators\RequiredPropertiesValidator;
 
 /**
  * Products service provider.
@@ -15,7 +16,7 @@ class ProductsServiceProvider extends ServiceProvider {
      *
      * @var bool
      */
-    protected $defer = true;
+    protected $defer = false;
 
     /**
      * Bootstrap the application events.
@@ -25,6 +26,8 @@ class ProductsServiceProvider extends ServiceProvider {
     public function boot()
     {
         $this->package('shopavel/products');
+
+        include __DIR__.'/../../routes.php';
     }
 
     /**
@@ -34,7 +37,21 @@ class ProductsServiceProvider extends ServiceProvider {
      */
     public function register()
     {
+        $app = $this->app;
 
+        // Share the product save transaction.
+        $app['product.save'] = $app->share(function($app)
+        {
+            return new Transactions\SaveProductTransaction([
+                new RequiredPropertiesValidator(['name'])
+            ]);
+        });
+
+        // Register the save validation on the model saving event.
+        Product::saving(function($product) use ($app)
+        {
+            $app['product.save']->validate($product);
+        });
     }
 
     /**
@@ -44,7 +61,7 @@ class ProductsServiceProvider extends ServiceProvider {
      */
     public function provides()
     {
-        return array();
+        return array('product.create');
     }
 
 }
