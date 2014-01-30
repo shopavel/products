@@ -2,9 +2,9 @@
 
 use Shopavel\Transactions\Transaction;
 
-class SaveProductTransaction extends Transaction {
+class UpdateProductTransaction extends Transaction {
 
-    public function save(ProdutInterface $product)
+    public function update(ProductInterface $product)
     {
         if ($this->validate($product))
         {

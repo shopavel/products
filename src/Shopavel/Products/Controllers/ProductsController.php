@@ -1,9 +1,33 @@
 <?php namespace Shopavel\Products\Controllers;
 
+use Shopavel\Products\Forms;
 use Shopavel\Products\Product;
+use Shopavel\Themes\ThemeManager;
+use Shopavel\Products\Transactions;
+use Shopavel\Products\ProductPresenter;
 use Shopavel\Controllers\BaseController;
+use Shopavel\Products\Repositories\ProductRepositoryInterface;
 
 class ProductsController extends BaseController {
+
+    protected $theme;
+    protected $product;
+    protected $presenter;
+
+    public function __construct(
+        ThemeManager $theme,
+        ProductRepositoryInterface $product,
+        ProductPresenter $presenter,
+        Transactions\Collection $transactions
+    )
+    {
+        $this->theme = $theme;
+        $this->product = $product;
+        $this->presenter = $presenter;
+        $this->transactions = $transactions;
+
+        // $this->beforeFilter('shopavel.auth.admin', ['except' => 'show']);
+    }
 
     /**
      * Display a listing of the resource.
@@ -12,7 +36,9 @@ class ProductsController extends BaseController {
      */
     public function index()
     {
-        //
+        $products = $this->product->all();
+
+        return $this->theme->make('product.index');
     }
 
     /**
@@ -22,7 +48,7 @@ class ProductsController extends BaseController {
      */
     public function create()
     {
-        //
+        return $this->theme->make('product.create');
     }
 
     /**
@@ -32,7 +58,12 @@ class ProductsController extends BaseController {
      */
     public function store()
     {
-        //
+        $product = new Product;
+
+        if ($this->transactions->store($product))
+        {
+            return \Redirect::route('product.index');
+        }
     }
 
     /**
@@ -43,7 +74,11 @@ class ProductsController extends BaseController {
      */
     public function show($id)
     {
-        return Product::findOrFail($id);
+        $product = $this->product->findOrFail($id);
+        $this->presenter->setResource($product);
+
+        return $this->theme->make('product.show')
+            ->withProduct($this->presenter);
     }
 
     /**
@@ -54,7 +89,7 @@ class ProductsController extends BaseController {
      */
     public function edit($id)
     {
-        //
+        return $this->theme->make('product.edit');
     }
 
     /**
@@ -65,7 +100,11 @@ class ProductsController extends BaseController {
      */
     public function update($id)
     {
-        //
+        $product = $this->product->findOrFail($id);
+
+        $this->transactions->update($product);
+
+        return \Redirect::route('shopavel.product.edit', ['product' => $id]);
     }
 
     /**
@@ -76,7 +115,11 @@ class ProductsController extends BaseController {
      */
     public function destroy($id)
     {
-        //
+        $product = $this->product->findOrFail($id);
+
+        $this->transactions->delete($product);
+
+        return \Redirect::route('shopavel.product.index');
     }
 
 }

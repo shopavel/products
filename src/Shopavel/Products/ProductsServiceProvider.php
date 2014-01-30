@@ -1,6 +1,7 @@
 <?php namespace Shopavel\Products;
 
-use Illuminate\Container\Container;
+use Illuminate\Support\Collection;
+use Shopavel\Products\Transactions;
 use Shopavel\Support\ServiceProvider;
 use Shopavel\Transactions\Validators\RequiredPropertiesValidator;
 
@@ -40,18 +41,37 @@ class ProductsServiceProvider extends ServiceProvider {
         $app = $this->app;
 
         // Share the product save transaction.
-        $app['product.save'] = $app->share(function($app)
+        $app['product.transactions'] = $app->share(function($app)
         {
-            return new Transactions\SaveProductTransaction([
+            $update = new Transactions\UpdateProductTransaction([
                 new RequiredPropertiesValidator(['name'])
+            ]);
+
+            $store = new Transactions\StoreProductTransaction;
+
+            return new Transactions\Collection([
+                'update' => $update,
+                'store' => $store
             ]);
         });
 
+        $app->bind(
+            'Shopavel\Products\Repositories\ProductRepositoryInterface',
+            'Shopavel\Products\Repositories\EloquentProductRepository'
+        );
+
+        $app->bind('Shopavel\Products\Transactions\Collection', function($app)
+        {
+            return $app['product.transactions'];
+        });
+
+        /*
         // Register the save validation on the model saving event.
         Product::saving(function($product) use ($app)
         {
-            $app['product.save']->validate($product);
+            $app['product.transactions.save']->validate($product);
         });
+        */
     }
 
     /**
