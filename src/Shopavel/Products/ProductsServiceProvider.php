@@ -28,6 +28,8 @@ class ProductsServiceProvider extends ServiceProvider {
     {
         $this->package('shopavel/products');
 
+        $this->app['command.shopavel.publish']->addPackage('products');
+
         include __DIR__.'/../../routes.php';
     }
 
